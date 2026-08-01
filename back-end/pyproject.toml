@@ -1,0 +1,24 @@
+[project]
+name = "streamify-back-end"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Francisco Brança"}
+]
+license = "Boost"
+requires-python = ">=3.12"
+dependencies = [
+    "django-ninja (>=1.6.2,<2.0.0)",
+    "dj-database-url (>=3.1.2,<4.0.0)",
+    "orjson (>=3.11.9,<4.0.0)"
+]
+
+[dependency-groups]
+dev = [
+    "django (==5.2)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

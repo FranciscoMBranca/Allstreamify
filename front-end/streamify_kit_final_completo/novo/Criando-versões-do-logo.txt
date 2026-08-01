@@ -1,0 +1,4 @@
+Fonte: Poppins Bold 700
+Texto: streamify (sempre minúsculo)
+Letter-spacing: -0.04em (-4%)
+Weight: 700

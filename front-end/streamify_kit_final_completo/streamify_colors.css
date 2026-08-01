@@ -1,0 +1,23 @@
+:root {
+  /* Streamify Brand Colors - extraídos do logo original */
+  --streamify-purple-deep: #782BFA;
+  --streamify-purple: #8C4EFC;
+  --streamify-purple-light: #945AFA;
+  --streamify-blue-mid: #6A64FC;
+  --streamify-blue: #22A8FC;
+  --streamify-cyan: #09C5FC;
+  --streamify-cyan-light: #36BAFB;
+  
+  /* Gradientes oficiais */
+  --gradient-main: linear-gradient(135deg, #782BFA 0%, #8C4EFC 30%, #6A64FC 60%, #09C5FC 100%);
+  --gradient-horizontal: linear-gradient(90deg, #782BFA 0%, #09C5FC 100%);
+  --gradient-vertical: linear-gradient(180deg, #782BFA 0%, #09C5FC 100%);
+  --gradient-icon: linear-gradient(135deg, #7B2FFF 0%, #00D4FF 100%);
+}
+
+.streamify-gradient-text {
+  background: var(--gradient-main);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

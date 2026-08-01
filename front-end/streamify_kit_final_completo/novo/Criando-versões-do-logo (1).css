@@ -1,0 +1,10 @@
+@import url('https://fonts.google.com/specimen/Poppins');
+.logo {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  text-transform: lowercase;
+  background: linear-gradient(90deg, #782BFA 0%, #09C5FC 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
