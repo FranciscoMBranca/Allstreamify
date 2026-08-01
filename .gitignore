@@ -11,9 +11,8 @@ __pycache__/
 *.pyd
 *.python-version
 env/
-venv/
+.venv
 ENV/
-.venv/
 *.sqlite3
 db.sqlite3
 *.log
@@ -24,8 +23,7 @@ settings_local.py
 *.sqlite3-journal
 
 # Python virtual environments
-.venv/
-venv/
+.venv/lib/
 ENV/
 env/
 
