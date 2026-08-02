@@ -1,84 +1,76 @@
-import { useMemo } from 'react'
-import SocialPlatformCard from '../components/SocialPlatformCard'
-import PlatformTabs from '../components/PlatformTabs'
-import { useSocialPlatforms } from '../hooks/useSocialPlatforms'
-import './home.css'
+import './pages.css'
+import { dashboardData } from '../data/dashboardData.js'
 
-const Home = ({ dashboard, loading: initialLoading }) => {
-  const { connectedPlatforms, loading, connectPlatform, disconnectPlatform } = useSocialPlatforms()
+function Home({ dashboard, loading, timeLeft }) {
+  const data = dashboard ?? dashboardData
 
-  const platforms = useMemo(() => {
-    if (!dashboard?.platforms) {
-      return []
-    }
-
-    return dashboard.platforms.map((platform) => ({
-      id: platform.id,
-      platform: platform.name,
-      title: platform.title,
-      description: platform.description,
-      icon: platform.icon,
-      isConnected: platform.isConnected,
-      accountInfo: platform.accountInfo,
-    }))
-  }, [dashboard])
-
-  const tabs = platforms.map((platform) => ({
-    label: platform.title,
-    icon: platform.icon,
-    badge: platform.isConnected ? null : '!',
-  }))
+  const metrics = [
+    { label: 'Plataformas conectadas', value: data.summary?.connectedPlatforms ?? 0 },
+    { label: 'Visualizações semanais', value: data.summary?.weeklyViews ?? '0' },
+    { label: 'Tempo médio', value: data.summary?.avgWatchTime ?? '0m' },
+    { label: 'Próximo evento', value: timeLeft ?? '00:00:00' },
+  ]
 
   return (
-    <div className="home">
-      <section className="connect-platforms-section">
-        <div className="section-header">
-          <div>
-            <h2>Conectar plataformas sociais</h2>
-            <p>Gerencie as conexões do seu fluxo de transmissão a partir de um painel único.</p>
-          </div>
-          <div className="connected-count">
-            <span className="count">{dashboard?.summary?.connectedPlatforms ?? 0}</span>
-            <span className="text">Conectado</span>
-          </div>
+    <section className="page-shell">
+      <header className="page-header">
+        <div>
+          <p className="page-eyebrow">Visão geral</p>
+          <h1>Seu centro de comando para transmissão</h1>
+          <p className="page-subtitle">
+            Acompanhe status, conexões e próximos eventos em um único painel.
+          </p>
         </div>
+        <div className="page-badge">{loading ? 'Carregando...' : 'Tudo em dia'}</div>
+      </header>
 
-        <PlatformTabs tabs={tabs} defaultTab={0}>
-          {platforms.map((platform) => (
-            <div key={platform.id} className="platform-content">
-              <SocialPlatformCard
-                platform={platform.platform}
-                icon={platform.icon}
-                title={platform.title}
-                description={platform.description}
-                isConnected={platform.isConnected || !!connectedPlatforms[platform.id]}
-                accountInfo={platform.accountInfo ?? connectedPlatforms[platform.id]}
-                onConnect={() => connectPlatform(platform.id)}
-                onDisconnect={() => disconnectPlatform(platform.id)}
-                isLoading={loading === platform.id || initialLoading}
-              />
-            </div>
-          ))}
-        </PlatformTabs>
+      <div className="stats-grid">
+        {metrics.map((metric) => (
+          <article key={metric.label} className="metric-card">
+            <span className="metric-label">{metric.label}</span>
+            <strong className="metric-value">{metric.value}</strong>
+          </article>
+        ))}
+      </div>
 
-        <div className="platforms-grid">
-          {platforms.map((platform) => (
-            <SocialPlatformCard
-              key={platform.id}
-              platform={platform.platform}
-              icon={platform.icon}
-              title={platform.title}
-              description={platform.description}
-              isConnected={platform.isConnected || !!connectedPlatforms[platform.id]}
-              accountInfo={platform.accountInfo ?? connectedPlatforms[platform.id]}
-              onConnect={() => connectPlatform(platform.id)}
-              onDisconnect={() => disconnectPlatform(platform.id)}
-              isLoading={loading === platform.id || initialLoading}
-            />
-          ))}
-        </div>
-      </section>
-    </div>
+      <div className="panel-grid">
+        <article className="panel">
+          <div className="panel-header">
+            <h2>Plataformas ativas</h2>
+            <span className="tag">{data.summary?.connectedPlatforms ?? 0} conectadas</span>
+          </div>
+
+          <ul className="list-stack">
+            {data.platforms?.map((platform) => (
+              <li key={platform.id} className="list-item">
+                <div>
+                  <strong>{platform.title}</strong>
+                  <p>{platform.description}</p>
+                </div>
+                <span className={`status-pill ${platform.isConnected ? 'online' : 'offline'}`}>
+                  {platform.isConnected ? 'Conectada' : 'Pendente'}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </article>
+
+        <article className="panel">
+          <div className="panel-header">
+            <h2>Próximo conteúdo</h2>
+            <span className="tag">Hoje às 20:00</span>
+          </div>
+
+          <div className="hero-card">
+            <h3>Live de lançamento</h3>
+            <p>Prepare a transmissão, a campanha de chat e o cronograma de anúncios.</p>
+            <button className="btn-primario" type="button">
+              Abrir checklist
+            </button>
+          </div>
+        </article>
+      </div>
+    </section>
   )
 }
 
