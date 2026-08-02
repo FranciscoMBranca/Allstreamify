@@ -111,3 +111,6 @@ front-end/dist/
 *.user
 *.userosscache
 *.sln.docstates
+migrations/
+migrations/*
+migrations

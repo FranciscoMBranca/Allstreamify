@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from html import parser as parse
+import json
 from typing import Any
 
 import ninja
@@ -9,6 +9,7 @@ from django.db.models import Sum
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from ninja.errors import HttpError
 from ninja.parser import Parser
 
 from django.contrib.auth.models import User
@@ -28,16 +29,28 @@ class ORJSONParser(Parser):
             body = request.body or b'{}'
             if not body.strip():
                 return {}
-            return orjson.loads(body)
-        except orjson.JSONDecodeError as exc:
-            raise parse.ParseError(f"JSON parse error - {str(exc)}")
+            payload = orjson.loads(body)
+            if isinstance(payload, dict):
+                return payload
+            return {'value': payload}
+        except (orjson.JSONDecodeError, TypeError, ValueError):
+            try:
+                return json.loads(request.body.decode('utf-8'))
+            except (TypeError, ValueError, UnicodeDecodeError):
+                return {}
 
     def parse_querydict(self, data, list_fields, request):
-        return super().parse_querydict(data, list_fields, request)
+        result = {}
+        for key in data.keys():
+            if key in list_fields:
+                result[key] = data.getlist(key)
+            else:
+                result[key] = data.get(key)
+        return result
 
 
 Api = ninja.NinjaAPI(
-    parser=ORJSONParser,
+    parser=ORJSONParser(),
     title="Streamfy API",
     version="0.1.0",
     description="API do painel Streamify para gestão de plataformas sociais e transmissão.",
@@ -135,37 +148,65 @@ def platforms(request):
     return {'platforms': PLATFORMS}
 
 
+@Api.get('/platforms/connect')
+def connect_platform_get(request):
+    """Informa ao frontend que a conexão exige um POST com payload válido."""
+    return {'success': False, 'message': 'Use POST para conectar uma plataforma. Envie userId, platformId, username e platformUserId.'}
+
+
 @Api.post('/platforms/connect')
-def connect_platform(request, payload: dict[str, Any]):
+def connect_platform(request):
     """Cria a conexão de uma conta social real no sistema."""
-    user_id = payload.get('userId')
-    platform_id = payload.get('platformId')
-    username = payload.get('username')
-    platform_user_id = payload.get('platformUserId')
+    payload = {}
+
+    if request.body:
+        try:
+            raw_body = request.body.decode('utf-8') if isinstance(request.body, bytes) else request.body
+            payload = json.loads(raw_body) if raw_body.strip() else {}
+        except (TypeError, ValueError, UnicodeDecodeError):
+            payload = {}
+
+    if not payload:
+        payload = dict(request.POST)
+
+    if isinstance(payload, dict):
+        user_id = payload.get('userId')
+        platform_id = payload.get('platformId')
+        username = payload.get('username')
+        platform_user_id = payload.get('platformUserId')
+    else:
+        user_id = platform_id = username = platform_user_id = None
 
     if not all([user_id, platform_id, username, platform_user_id]):
-        return {'success': False, 'message': 'userId, platformId, username e platformUserId são obrigatórios.'}, 400
+        raise HttpError(400, 'userId, platformId, username e platformUserId são obrigatórios.')
 
     user = get_object_or_404(User, id=user_id)
     platform_data = next((item for item in PLATFORMS if item['id'] == platform_id), None)
     if not platform_data:
-        return {'success': False, 'message': 'Plataforma não encontrada.'}, 404
+        raise HttpError(404, 'Plataforma não encontrada.')
 
-    account = SocialAccount.objects.create(
-        user=user,
-        platform=platform_id,
+    account, created = SocialAccount.objects.get_or_create(
         platform_user_id=platform_user_id,
-        username=username,
-        display_name=payload.get('displayName', username),
-        avatar_url=payload.get('avatarUrl', ''),
-        access_token=payload.get('accessToken', ''),
-        refresh_token=payload.get('refreshToken', ''),
-        is_active=True,
+        defaults={
+            'user': user,
+            'platform': platform_id,
+            'username': username,
+            'display_name': payload.get('displayName', username),
+            'avatar_url': payload.get('avatarUrl', ''),
+            'access_token': payload.get('accessToken', ''),
+            'refresh_token': payload.get('refreshToken', ''),
+            'is_active': True,
+        },
     )
+
+    if not created and account.user_id != user.id:
+        account.user = user
+        account.save(update_fields=['user'])
 
     return {
         'success': True,
         'message': f"{platform_data['name']} conectada com sucesso.",
         'platform': platform_id,
         'accountId': account.id,
+        'created': created,
     }
