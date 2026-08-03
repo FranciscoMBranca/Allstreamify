@@ -181,7 +181,7 @@ function App() {
       <footer className="rodape">
         <p>&copy; 2026 Streamify. Todos os direitos reservados.</p>
       </footer>
-    </div>
+      </div>
   )
 }
 
