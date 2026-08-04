@@ -19,6 +19,8 @@ from scheduler.models import ScheduledPost
 from live.models import LiveRoom
 
 
+# Cada chamada do frontend passa por este parser. Ele converte o request em JSON e
+# torna a API mais rápida e previsível para os endpoints que devolvem dados em React.
 class ORJSONParser(Parser):
     """Parser JSON com suporte a orjson para respostas rápidas e legíveis."""
 
@@ -49,6 +51,8 @@ class ORJSONParser(Parser):
         return result
 
 
+# NinjaAPI é o centro do backend: aqui ficam os endpoints que o frontend consome.
+# O React usa fetch() para chamar /api/dashboard, /api/platforms/connect, /api/live/salas etc.
 Api = ninja.NinjaAPI(
     parser=ORJSONParser(),
     title="Streamfy API",
