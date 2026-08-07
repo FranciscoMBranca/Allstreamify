@@ -1,3 +1,5 @@
+// Hook responsável por gerenciar as plataformas sociais conectadas.
+// Ele centraliza a lógica de conectar, desconectar e verificar status em uma API local.
 import { useState, useCallback } from 'react'
 
 export const useSocialPlatforms = (initialPlatforms = []) => {

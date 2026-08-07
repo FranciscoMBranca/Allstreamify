@@ -114,7 +114,7 @@ function Home({ dashboard, loading, timeLeft }) {
             <h3>Live de lançamento</h3>
             <p>Prepare a transmissão, a campanha de chat e o cronograma de anúncios.</p>
             <button className="btn-primario" type="button" onClick={handleCreateLive} disabled={creatingRoom}>
-              {creatingRoom ? 'Criando...' : 'Abrir live'}
+              {creatingRoom ? 'Criando...' : 'Transmitir agora'}
             </button>
           </div>
         </article>

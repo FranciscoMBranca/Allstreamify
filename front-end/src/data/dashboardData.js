@@ -1,3 +1,5 @@
+
+
 export const dashboardData = {
   summary: {
     connectedPlatforms: 3,
@@ -9,13 +11,13 @@ export const dashboardData = {
       id: 'youtube',
       title: 'YouTube',
       description: 'Canal principal para transmissão e arquivamento.',
-      isConnected: true,
+      isConnected: false,
     },
     {
       id: 'twitch',
       title: 'Twitch',
       description: 'Comunidade ativa para eventos ao vivo.',
-      isConnected: true,
+      isConnected: false,
     },
     {
       id: 'linkedin',

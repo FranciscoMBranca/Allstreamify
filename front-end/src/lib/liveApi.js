@@ -1,4 +1,7 @@
-const API_BASE = 'http://127.0.0.1:8000/api'
+// Camada de comunicação com a API de live.
+// Todas as requisições da interface passam por este arquivo para manter o fluxo
+// de dados organizado e centralizado na aplicação.
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api'
 
 async function request(path, options = {}) {
   const response = await fetch(`${API_BASE}${path}`, {

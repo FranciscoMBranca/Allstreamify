@@ -1,4 +1,4 @@
-from dj_database_url import DBConfig
+# from dj_database_url import DBConfig
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -72,20 +72,20 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'streamfy.wsgi.application'
+WSGI_APPLICATION = 'streamfy.asgi.application'
 
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-"""DATABASES = {
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
-}"""
+}
 
-DATABASES = {
+"""DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'streamify_db',
@@ -98,7 +98,7 @@ DATABASES = {
             'charset': 'utf8mb4',
         },
     }
-}
+}"""
 
 if not DATABASES:
     print("falha na configuração do banco de dados.")

@@ -1,3 +1,5 @@
+// Página de configurações do produto.
+// Serve como painel de preferências, segurança e ajustes do workspace.
 import './pages.css'
 function Settings() {
   

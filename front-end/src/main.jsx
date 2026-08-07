@@ -1,3 +1,5 @@
+// Ponto de entrada da aplicação React.
+// Aqui a aplicação é montada no DOM e a raiz do projeto é inicializada.
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'

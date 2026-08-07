@@ -1,3 +1,5 @@
+// Componente de conexão de plataformas sociais.
+// Ele controla a simulação do fluxo de autenticação e exibe cada rede como uma aba.
 import { useState } from 'react'
 import PlatformTabs from '../PlatformTabs'
 import SocialPlatformCard from '../SocialPlatformCard'

@@ -1,3 +1,5 @@
+// Utilitários da live para padronizar o formato dos dados vindos do backend.
+// Isso evita que cada componente lide com nomes de propriedades diferentes.
 export function normalizeLiveRoom(room = {}) {
   return {
     id: room.id ?? null,

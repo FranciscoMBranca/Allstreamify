@@ -12,8 +12,10 @@ import {
   useRTCClient,
 } from 'agora-rtc-react'
 
-const AGORA_APP_ID = '39daf989def242ec96e7ad08179d1aa1'
-const AGORA_TOKEN = '007eJxTYLgj2dS7pKjv/vVrpeu+B9UU5h9UkdN8dCXp66oHxoy5hVsVGIwtUxLTLC0sU1LTjEyMUpMtzVLNE1MMLAzNLVMMExMNLxgUZDUEMjJ84pdmZmSAQBCfk6G4pCg1MTczrZKBAQCzbiN2'
+// O App ID do Agora deve vir de variável de ambiente em produção.
+// O token real deve ser gerado no backend e não deixado hardcoded no frontend.
+const AGORA_APP_ID = import.meta.env.VITE_AGORA_APP_ID || '39daf989def242ec96e7ad08179d1aa1'
+const AGORA_TOKEN = import.meta.env.VITE_AGORA_TOKEN || null
 
 function LivePlayer({ room }) {
   const client = useRTCClient()

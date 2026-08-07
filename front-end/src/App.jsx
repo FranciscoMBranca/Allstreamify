@@ -1,3 +1,6 @@
+// App principal do painel Streamify.
+// Este componente controla a navegação entre páginas, o estado do menu lateral
+// e os dados gerais do dashboard consumidos pela interface.
 import { useEffect, useState } from 'react'
 import './App.css'
 import Home from './pages/Home.jsx'
@@ -5,18 +8,98 @@ import Discover from './pages/Discover.jsx'
 import Schedule from './pages/Schedule.jsx'
 import Analytics from './pages/Analytics.jsx'
 import Settings from './pages/Settings.jsx'
+import Social from './pages/Social.jsx'
+import Inbox from './pages/Inbox.jsx'
+import AI from './pages/AI.jsx'
 import logoImg from './assets/logo.svg'
-import houseImg from './assets/house.svg'
 import streamImg from './assets/stream.svg'
-import settingImg from './assets/setting.svg'
+import graceImg from './assets/grace.jpg'
 
-// Menu items displayed in the sidebar
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api'
+
+// Menu lateral do produto. Cada item mapeia para uma rota de página e um endpoint do backend.
 const navigationItems = [
-  { id: 'home', label: 'Início', icon: houseImg },
-  { id: 'discover', label: 'Descobrir', icon: streamImg },
-  { id: 'schedule', label: 'Agenda', icon: streamImg },
-  { id: 'analytics', label: 'Analytics', icon: settingImg },
-  { id: 'settings', label: 'Configurações', icon: settingImg },
+  {
+    id: 'home',
+    label: 'Início',
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-5H9v5H4a1 1 0 0 1-1-1v-9.5Z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'discover',
+    label: 'Descobrir',
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="8.3" fill="none" stroke="currentColor" strokeWidth="1.8"/>
+        <path d="M15 8 9.5 13.5l1.5 4.5 5.5-3.5L15 8Z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'schedule',
+    label: 'Agenda',
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="4" y="5" width="16" height="15" rx="2" fill="none" stroke="currentColor" strokeWidth="1.8"/>
+        <path d="M8 2.5v4M16 2.5v4M7 10.5h10" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'analytics',
+    label: 'Analytics',
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M6 18v-6M10 18v-2M14 18v-4M18 18v-8" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'social',
+    label: 'Social',
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 5h16v14H4z" fill="none" stroke="currentColor" strokeWidth="1.8" rx="2"/>
+        <path d="M8 8h8M8 12h8M8 16h5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'inbox',
+    label: 'Inbox',
+    badge: '3',
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20 7H4a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1Z" fill="none" stroke="currentColor" strokeWidth="1.8"/>
+        <path d="M4 7l8 6 8-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'ai',
+    label: 'IA',
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M7.5 9.5h9M7.5 14.5h9M12 8.5v7" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+        <circle cx="8.5" cy="8.5" r="1.2" fill="none" stroke="currentColor" strokeWidth="1.8"/>
+        <circle cx="15.5" cy="8.5" r="1.2" fill="none" stroke="currentColor" strokeWidth="1.8"/>
+        <circle cx="12" cy="15.5" r="1.2" fill="none" stroke="currentColor" strokeWidth="1.8"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'settings',
+    label: 'Configurações',
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" strokeWidth="1.8"/>
+        <path d="M4.6 12.8h2.7M16.7 12.8h2.7M12 4.6v2.7M12 16.7v2.7M6.6 6.6l1.9 1.9M15.5 15.5l1.9 1.9M6.6 17.4l1.9-1.9M15.5 8.5l1.9-1.9" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
 ]
 
 const pageComponents = {
@@ -24,15 +107,61 @@ const pageComponents = {
   discover: Discover,
   schedule: Schedule,
   analytics: Analytics,
+  social: Social,
+  inbox: Inbox,
+  ai: AI,
   settings: Settings,
 }
 
 function App() {
-  // Sidebar open state: desktop opens by default, mobile starts closed
-  const [sidebarOpen, setSidebarOpen] = useState(() => {
-    if (typeof window === 'undefined') return true
-    return window.innerWidth > 900
-  })
+  // Agrupa os atalhos do header para manter o topo organizado e centrado.
+  const headerActions = [
+    {
+      id: 'live',
+      label: 'Live',
+      icon: (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="3.5" y="7" width="12.5" height="10" rx="2.5" fill="none" stroke="currentColor" strokeWidth="1.8"/>
+          <path d="M16 10.2 20.5 8v8l-4.5-2.2v-3.6Z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
+        </svg>
+      ),
+    },
+    {
+      id: 'messages',
+      label: 'Mensagens',
+      badge: '5',
+      icon: (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 6.75A2.75 2.75 0 0 1 7.75 4h8.5A2.75 2.75 0 0 1 19 6.75v6.5A2.75 2.75 0 0 1 16.25 16H10l-5 4v-4.25A2.75 2.75 0 0 1 5 13.25v-6.5Z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M8.5 9h7M8.5 12h5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+        </svg>
+      ),
+    },
+    {
+      id: 'notifications',
+      label: 'Notificações',
+      badge: '11',
+      icon: (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 4.5a5 5 0 0 1 5 5v3.2l1.3 3.3H5.7l1.3-3.3V9.5a5 5 0 0 1 5-5Z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M10 18a2 2 0 0 0 4 0" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+        </svg>
+      ),
+    },
+    {
+      id: 'groups',
+      label: 'Grupos',
+      icon: (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Zm8 0a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5ZM3.5 17.5a4.5 4.5 0 0 1 9 0M11.5 17.5a4.5 4.5 0 0 1 9 0" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      ),
+    },
+  ]
+
+  // A barra lateral inicia minimizada para deixar o dashboard mais limpo.
+  // O usuário pode expandi-la manualmente com o botão do topo.
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   // Current page shown in the main content
   const [activePage, setActivePage] = useState('home')
@@ -45,11 +174,11 @@ function App() {
     setSidebarOpen((aberto) => !aberto)
   }
 
-  // Carrega os dados do dashboard do backend quando o app monta
+  // Faz a primeira carga do dashboard. O mesmo padrão se repete em outras páginas: a UI chama o backend e renderiza o resultado.
   useEffect(() => {
     async function carregarDashboard() {
       try {
-        const resposta = await fetch('http://127.0.0.1:8000/api/dashboard')
+        const resposta = await fetch(`${API_BASE_URL}/dashboard`)
         if (!resposta.ok) {
           throw new Error('Não foi possível carregar o painel')
         }
@@ -122,21 +251,34 @@ function App() {
         </div>
 
         <div className="acoes-superior">
-          <span className="pilula-superior">No ar — Multistream</span>
+          
+
+          <div className="header-actions" aria-label="Ações do usuário">
+            {headerActions.map((action) => (
+              <button
+                key={action.id}
+                className="header-icon-button"
+                type="button"
+                aria-label={action.label}
+                title={action.label}
+              >
+                {action.icon}
+                {action.badge ? <sup>{action.badge}</sup> : null}
+              </button>
+            ))}
+          </div>
+
           <div className="user-chip" aria-label="Usuário autenticado">
             <img
               className="user-avatar"
-              src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80"
+              src={graceImg}
               alt="Foto de perfil"
             />
             <div id="user-info">
-              <div className="user-name">Marta Silva</div>
-              <div className="user-role">Produtora</div>
+              <div className="user-name">Francisco Brança</div>
+              <div className="user-role">desenvolvedor</div>
             </div>
           </div>
-          <button className="btn-primario" type="button">
-            Transmitir agora
-          </button>
         </div>
       </header>
 
@@ -164,8 +306,9 @@ function App() {
                       }
                     }}
                   >
-                    <img src={item.icon} alt="" />
-                    <span>{item.label}</span>
+                    <span className="nav-icon" aria-hidden="true">{item.icon}</span>
+                    <span className='link-navegacao-label'>{item.label}</span>
+                    {item.badge ? <sup className="nav-badge">{item.badge}</sup> : null}
                   </button>
                 </li>
               )

@@ -85,21 +85,120 @@ select {
   width: 120px;
 }
 
+/* Ações do topo: deixam o conjunto centralizado e visualmente equilibrado. */
 .acoes-superior {
   display: flex;
-  gap: 12px;
+  justify-content: center;
   align-items: center;
+  gap: 12px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Botões circulares do header com ícones em destaque e alinhamento central. */
+.header-icon-button {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.header-icon-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(124, 77, 255, 0.35);
+  color: var(--accent);
+}
+
+.header-icon-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+.header-icon-button sup {
+  display: inline-flex;
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.link-navegacao {
+  position: relative;
+}
+
+.link-navegacao .nav-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  margin-left: auto;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.barra-lateral.minimizada .link-navegacao .nav-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  margin-left: 0;
+  padding: 0;
+  min-width: 18px;
+  width: 18px;
+  height: 18px;
+  font-size: 0.65rem;
+}
+
+.link-navegacao .nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid transparent;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease, transform 0.2s ease;
 }
 
 .user-chip {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-direction: row;
   padding: 8px 12px;
   border: 1px solid var(--border);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.8);
 }
+
 
 .user-avatar {
   width: 38px;
@@ -117,6 +216,9 @@ select {
 .user-role {
   font-size: 0.78rem;
   color: var(--text-muted);
+  display: inline;
+  height: 100%;
+  text-align: center;
 }
 
 /* botão de alternar barra lateral */
@@ -152,14 +254,7 @@ select {
   box-shadow: 0 12px 30px rgba(124, 77, 255, 0.28);
 }
 
-/* Tornar botão superior menos dominante para hierarquia de CTAs */
-.barra-superior .btn-primario {
-  background: transparent;
-  color: var(--accent);
-  border: 1px solid var(--accent);
-  box-shadow: none;
-  padding: 8px 12px;
-}
+/* este botão agora fica no fluxo do conteúdo, não no header */
 
 /* contador e ações rápidas no cartão de destaque */
 .cartao-cta {
@@ -178,14 +273,6 @@ select {
 }
 
 
-.pilula-superior {
-  padding: 8px 12px;
-  background: var(--accent-soft);
-  color: var(--accent);
-  border-radius: 999px;
-  font-size: 0.9rem;
-  font-weight: 600;
-}
 
 .btn-primario,
 .btn-secundario,
@@ -236,11 +323,12 @@ select {
 
 .barra-lateral.minimizada {
   width: 72px;
-  padding: 16px 8px;
+  justify-content: center;
+  align-items: center;
   overflow: hidden;
 }
 
-.barra-lateral.minimizada .link-navegacao span {
+.barra-lateral.minimizada .link-navegacao span:not(.nav-icon) { 
   display: none;
 }
 
@@ -257,24 +345,79 @@ select {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 12px;
+  background: none;
+  padding: 6px 8px;
   text-decoration: none;
   color: var(--text-muted);
   font-weight: 500;
-  border-radius: 12px;
-  transition: background 0.2s ease, color 0.2s ease;
+  border: none;
+  width: 100%;
+  border-radius: 2px;
+  outline-style: none;
+  transition: background 0.2s ease, color 0.2s ease, padding 0.2s ease, transform 0.2s ease;
+}
+
+.link-navegacao>.link-navegacao-label{
+  text-align: center;
+  height: 100%;
 }
 
 .link-navegacao:hover,
 .link-navegacao.active {
   background: var(--accent-soft);
   color: var(--accent);
+  transform: scale(1.1);
 }
 
-.link-navegacao img {
+
+.link-navegacao .nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid transparent;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.link-navegacao:hover .nav-icon,
+.link-navegacao.active .nav-icon {
+  border-color: rgba(124, 77, 255, 0.35);
+  color: var(--accent);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.link-navegacao .nav-icon svg {
   width: 18px;
   height: 18px;
 }
+
+.barra-lateral.minimizada .link-navegacao {
+  justify-content: center;
+  padding: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.barra-lateral.minimizada .link-navegacao .nav-icon {
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.82);
+  border-color: transparent;
+}
+
+.barra-lateral.minimizada .link-navegacao:hover .nav-icon,
+.barra-lateral.minimizada .link-navegacao.active .nav-icon {
+  border-color: rgba(124, 77, 255, 0.35);
+  color: var(--accent);
+}
+
+
 
 .conteudo-principal {
   grid-area: main;
@@ -362,7 +505,7 @@ select {
       'header'
       'main'
       'footer';
-    overflow-x: hidden;
+      width: 100vw;
   }
 
   .barra-superior {
@@ -398,9 +541,7 @@ select {
     text-overflow: ellipsis;
   }
 
-  .pilula-superior {
-    white-space: nowrap;
-  }
+  
 
   .conteudo-principal {
     padding: 20px;
@@ -460,4 +601,11 @@ select {
 
 ul {
   list-style: none;
+}
+
+sup{
+  border-radius: 50%;
+  width: 3ch;
+  background-color: red;
+  overflow: hidden;
 }

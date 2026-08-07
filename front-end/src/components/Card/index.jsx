@@ -1,3 +1,5 @@
+// Cartão genérico usado para destacar conteúdos ou módulos do produto.
+// Mantém a UI reutilizável e com visual simples para os painéis.
 import './card.css'
 
 const Card = ({ title, description, tag }) => {

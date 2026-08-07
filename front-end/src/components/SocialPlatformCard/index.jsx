@@ -1,3 +1,5 @@
+// Card reutilizável para cada rede social.
+// Exibe o estado da conexão, os dados do perfil e os botões de ação.
 import './socialPlatformCard.css'
 
 const SocialPlatformCard = ({

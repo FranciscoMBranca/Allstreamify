@@ -1,3 +1,5 @@
+// Componente responsável por renderizar abas de plataforma.
+// Ele mantém o estado da aba ativa e alterna o conteúdo de cada seção.
 import { useState } from 'react'
 import './platformTabs.css'
 
