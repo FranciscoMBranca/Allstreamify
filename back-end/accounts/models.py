@@ -41,7 +41,7 @@ class UserProfile(models.Model):
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True)
     website = models.URLField(blank=True)
-    timezone = models.CharField(max_length=50, default='America/Sao_Paulo')
+    timezone = models.CharField(max_length=50, default='Africa/Luanda')
     language = models.CharField(max_length=10, default='pt-br')
     plan = models.ForeignKey(Plan, on_delete=models.SET_NULL, null=True, blank=True, related_name='subscribers')
     plan_expires_at = models.DateTimeField(null=True, blank=True)

@@ -72,7 +72,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'streamfy.asgi.application'
+WSGI_APPLICATION = 'streamfy.wsgi.application'
 
 
 # Database
@@ -139,3 +139,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+MEDIA_ROOT = "https://clodinary.com/streamfy/media/"

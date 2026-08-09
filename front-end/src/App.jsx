@@ -3,17 +3,19 @@
 // e os dados gerais do dashboard consumidos pela interface.
 import { useEffect, useState } from 'react'
 import './App.css'
-import Home from './pages/Home.jsx'
-import Discover from './pages/Discover.jsx'
-import Schedule from './pages/Schedule.jsx'
-import Analytics from './pages/Analytics.jsx'
-import Settings from './pages/Settings.jsx'
-import Social from './pages/Social.jsx'
-import Inbox from './pages/Inbox.jsx'
-import AI from './pages/AI.jsx'
+import { Component } from 'react'
+import Home from './pages/Home'
+import Discover from './pages/Discover'
+import Schedule from './pages/Schedule'
+import Analytics from './pages/Analytics'
+import Settings from './pages/Settings'
+import Social from './pages/Social'
+import Inbox from './pages/Inbox'
+import AI from './pages/AI'
 import logoImg from './assets/logo.svg'
 import streamImg from './assets/stream.svg'
 import graceImg from './assets/grace.jpg'
+import NotificationPanel from './components/NotificationPanel'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api'
 
@@ -162,16 +164,41 @@ function App() {
   // A barra lateral inicia minimizada para deixar o dashboard mais limpo.
   // O usuário pode expandi-la manualmente com o botão do topo.
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [panelOpen, setPanelOpen] = useState(false)
+  const [panelType, setPanelType] = useState('messages')
 
   // Current page shown in the main content
   const [activePage, setActivePage] = useState('home')
   const [dashboard, setDashboard] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [timeLeft, setTimeLeft] = useState('00:00:00')
+  const [language, setLanguage] = useState('pt')
+  const languageLabels = { pt: 'Português', en: 'English', es: 'Español' }
 
   // Alterna a visibilidade da barra lateral
   function alternarBarra() {
     setSidebarOpen((aberto) => !aberto)
+  }
+  function handleLogout() {
+    // Implementar logout real com backend quando disponível
+    console.log('Logout solicitado')
+    alert('Terminar sessão - ação simulada')
+  }
+
+  function cycleLanguage() {
+    const order = ['pt', 'en', 'es']
+    const currentIndex = order.indexOf(language)
+    const next = order[(currentIndex + 1) % order.length]
+    setLanguage(next)
+    console.log('Idioma alterado para', next)
+  }
+
+  function abrirPainel(tipo) {
+    setPanelType(tipo)
+    setPanelOpen(true)
+  }
+
+  function fecharPainel() {
+    setPanelOpen(false)
   }
 
   // Faz a primeira carga do dashboard. O mesmo padrão se repete em outras páginas: a UI chama o backend e renderiza o resultado.
@@ -180,7 +207,9 @@ function App() {
       try {
         const resposta = await fetch(`${API_BASE_URL}/dashboard`)
         if (!resposta.ok) {
-          throw new Error('Não foi possível carregar o painel')
+          console.error('Erro ao carregar dashboard:', resposta.statusText)
+          throw new Error('Não foi possível carregar o painel');
+          
         }
 
         const dados = await resposta.json()
@@ -195,43 +224,36 @@ function App() {
     carregarDashboard()
   }, [])
 
-  // Contador regressivo para o próximo evento ao vivo
-  useEffect(() => {
-    function getNextEventDate() {
-      const agora = new Date()
-      const proximo = new Date(agora)
-      proximo.setHours(20, 0, 0, 0)
+  const ActivePage = pageComponents[activePage] ?? Home
 
-      if (proximo <= agora) {
-        proximo.setDate(proximo.getDate() + 1)
+  // Error boundary para capturar erros de renderização nas páginas
+  class ErrorBoundary extends Component {
+    constructor(props) {
+      super(props)
+      this.state = { hasError: false, error: null }
+    }
+
+    static getDerivedStateFromError(error) {
+      return { hasError: true, error }
+    }
+
+    componentDidCatch(error, info) {
+      console.error('Erro capturado pelo ErrorBoundary:', error, info)
+    }
+
+    render() {
+      if (this.state.hasError) {
+        return (
+          <div style={{ padding: 24 }}>
+            <h2>Erro ao renderizar a página</h2>
+            <pre style={{ whiteSpace: 'pre-wrap', color: 'red' }}>{String(this.state.error)}</pre>
+          </div>
+        )
       }
 
-      return proximo
+      return this.props.children
     }
-
-    function formatDuration(ms) {
-      if (ms <= 0) return 'Ao vivo'
-
-      const total = Math.floor(ms / 1000)
-      const horas = Math.floor(total / 3600)
-      const minutos = Math.floor((total % 3600) / 60)
-      const segundos = total % 60
-
-      return [horas, minutos, segundos]
-        .map((valor) => String(valor).padStart(2, '0'))
-        .join(':')
-    }
-
-    const target = getNextEventDate()
-    const interval = window.setInterval(() => {
-      const diff = target - new Date()
-      setTimeLeft(formatDuration(diff))
-    }, 1000)
-
-    return () => window.clearInterval(interval)
-  }, [])
-
-  const ActivePage = pageComponents[activePage] ?? Home
+  }
 
   return (
     <div className={`app-estrutura ${sidebarOpen ? '' : 'barra-minimizada'}`}>
@@ -261,6 +283,11 @@ function App() {
                 type="button"
                 aria-label={action.label}
                 title={action.label}
+                onClick={() => {
+                  if (action.id === 'messages' || action.id === 'notifications') {
+                    abrirPainel(action.id)
+                  }
+                }}
               >
                 {action.icon}
                 {action.badge ? <sup>{action.badge}</sup> : null}
@@ -315,11 +342,42 @@ function App() {
             })}
           </ul>
         </nav>
+
+        <div className="sidebar-footer" aria-label="Ações da conta">
+          <ul className="footer-nav">
+            <li>
+              <button type="button" className="link-navegacao" onClick={cycleLanguage} aria-label="Mudar idioma">
+                <span className="nav-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm5 12h-3.5a12 12 0 0 1-1.5 4.5A8 8 0 0 0 17 14zM7 14a8 8 0 0 0 5 2.5V14H7zM7 10h5V7.5A8 8 0 0 0 7 10zM12 4.5V7h5a8 8 0 0 0-5-2.5z" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </span>
+                <span className="link-navegacao-label">{languageLabels[language] || 'Idioma'}</span>
+              </button>
+            </li>
+
+            <li>
+              <button type="button" className="link-navegacao" onClick={handleLogout} aria-label="Terminar sessão">
+                <span className="nav-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M16 3h5v18h-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M7 12h12M11 8l-4 4 4 4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </span>
+                <span className="link-navegacao-label">Terminar sessão</span>
+              </button>
+            </li>
+          </ul>
+        </div>
       </aside>
 
       <main className="conteudo-principal">
-        <ActivePage dashboard={dashboard} loading={loading} timeLeft={timeLeft} />
+        <ErrorBoundary>
+          <ActivePage dashboard={dashboard} loading={loading} />
+        </ErrorBoundary>
       </main>
+
+      <NotificationPanel open={panelOpen} panelType={panelType} onClose={fecharPainel} />
 
       <footer className="rodape">
         <p>&copy; 2026 Streamify. Todos os direitos reservados.</p>

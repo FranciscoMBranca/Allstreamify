@@ -41,7 +41,7 @@ class PostMedia(models.Model):
     width = models.IntegerField(null=True, blank=True)
     height = models.IntegerField(null=True, blank=True)
     duration_seconds = models.FloatField(null=True, blank=True)
-    thumbnail = models.ImageField(upload_to='post_thumbnails/', blank=True, null=True)
+    thumbnail = models.ImageField(upload_to='capas_dos_post/', blank=True, null=True)
     alt_text = models.CharField(max_length=255, blank=True)
     order = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)

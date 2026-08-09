@@ -15,6 +15,7 @@ from ninja.parser import Parser
 from django.contrib.auth.models import User
 
 from social.models import SocialAccount
+from social.platforms import get_platform_payload_normalizer
 from scheduler.models import ScheduledPost
 from live.models import LiveRoom
 
@@ -189,19 +190,34 @@ def connect_platform(request):
     if not platform_data:
         raise HttpError(404, 'Plataforma não encontrada.')
 
+    normalizer = get_platform_payload_normalizer(platform_id)
+    try:
+        normalized_payload = normalizer(payload)
+    except ValueError as error:
+        raise HttpError(400, str(error))
+
     account, created = SocialAccount.objects.get_or_create(
-        platform_user_id=platform_user_id,
+        platform_user_id=normalized_payload['platform_user_id'],
         defaults={
             'user': user,
             'platform': platform_id,
-            'username': username,
-            'display_name': payload.get('displayName', username),
-            'avatar_url': payload.get('avatarUrl', ''),
-            'access_token': payload.get('accessToken', ''),
-            'refresh_token': payload.get('refreshToken', ''),
+            'username': normalized_payload['username'],
+            'display_name': normalized_payload['display_name'],
+            'avatar_url': normalized_payload['avatar_url'],
+            'access_token': normalized_payload['access_token'],
+            'refresh_token': normalized_payload['refresh_token'],
+            'followers_count': normalized_payload['followers_count'],
+            'following_count': normalized_payload['following_count'],
+            'posts_count': normalized_payload['posts_count'],
+            'bio': normalized_payload['bio'],
+            'scopes': normalized_payload['scopes'],
             'is_active': True,
         },
     )
+
+    if not created and account.user_id != user.id:
+        account.user = user
+        account.save(update_fields=['user'])
 
     if not created and account.user_id != user.id:
         account.user = user
