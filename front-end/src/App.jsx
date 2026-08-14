@@ -3,7 +3,7 @@
 // e os dados gerais do dashboard consumidos pela interface.
 import { useEffect, useState } from 'react'
 import './App.css'
-import { Component } from 'react'
+import ErrorBoundary from './ErrorBoundary'
 import Home from './pages/Home'
 import Discover from './pages/Discover'
 import Schedule from './pages/Schedule'
@@ -16,6 +16,7 @@ import logoImg from './assets/logo.svg'
 import streamImg from './assets/stream.svg'
 import graceImg from './assets/grace.jpg'
 import NotificationPanel from './components/NotificationPanel'
+import LoginSignupForm from './pages/LoginSigin'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api'
 
@@ -226,34 +227,7 @@ function App() {
 
   const ActivePage = pageComponents[activePage] ?? Home
 
-  // Error boundary para capturar erros de renderização nas páginas
-  class ErrorBoundary extends Component {
-    constructor(props) {
-      super(props)
-      this.state = { hasError: false, error: null }
-    }
 
-    static getDerivedStateFromError(error) {
-      return { hasError: true, error }
-    }
-
-    componentDidCatch(error, info) {
-      console.error('Erro capturado pelo ErrorBoundary:', error, info)
-    }
-
-    render() {
-      if (this.state.hasError) {
-        return (
-          <div style={{ padding: 24 }}>
-            <h2>Erro ao renderizar a página</h2>
-            <pre style={{ whiteSpace: 'pre-wrap', color: 'red' }}>{String(this.state.error)}</pre>
-          </div>
-        )
-      }
-
-      return this.props.children
-    }
-  }
 
   return (
     <div className={`app-estrutura ${sidebarOpen ? '' : 'barra-minimizada'}`}>
@@ -373,7 +347,8 @@ function App() {
 
       <main className="conteudo-principal">
         <ErrorBoundary>
-          <ActivePage dashboard={dashboard} loading={loading} />
+          <ActivePage dashboard={dashboard} loading={loading} /> 
+          {/* <LoginSignupForm/> */}
         </ErrorBoundary>
       </main>
 

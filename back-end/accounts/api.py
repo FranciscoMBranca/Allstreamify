@@ -1,10 +1,16 @@
 from __future__ import annotations
 
+from datetime import datetime, timedelta
 from typing import Optional
 
+import jwt
 import ninja
+from django.conf import settings
+from django.contrib import auth
 from django.contrib.auth.models import User
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
+from ninja.errors import HttpError
 
 from .models import Plan, Subscription, Team, UserProfile
 from .schemas import (
@@ -16,9 +22,160 @@ from .schemas import (
     PerfilSchema,
     PlanoCriacaoSchema,
     PlanoSchema,
+    TokenSchema,
+    UsuarioAtualizacaoSchema,
+    UsuarioLoginSchema,
+    UsuarioPerfilSchema,
+    UsuarioRegistroSchema,
 )
 
 router = ninja.Router(tags=['accounts'])
+
+
+def gerar_token(user):
+    """Gera um JWT para o usuário autenticado."""
+    payload = {
+        'user_id': user.id,
+        'username': user.username,
+        'email': user.email,
+        'exp': datetime.utcnow() + timedelta(days=30),
+        'iat': datetime.utcnow(),
+    }
+    return jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+
+
+def preparar_perfil_user(user):
+    """Prepara dados do perfil publicamente retornados pela API."""
+    try:
+        perfil = UserProfile.objects.get(user=user)
+    except UserProfile.DoesNotExist:
+        perfil = UserProfile.objects.create(user=user)
+
+    return {
+        'id': user.id,
+        'username': user.username,
+        'email': user.email,
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'bio': perfil.bio,
+        'avatar': perfil.avatar.url if perfil.avatar else None,
+        'phone': perfil.phone,
+        'website': perfil.website,
+        'timezone': perfil.timezone,
+        'language': perfil.language,
+        'email_verified': perfil.email_verified,
+        'two_factor_enabled': perfil.two_factor_enabled,
+        'onboarding_done': perfil.onboarding_done,
+        'created_at': user.date_joined,
+        'updated_at': perfil.updated_at,
+    }
+
+
+@router.post('/login', response=TokenSchema)
+def logar(request, data: UsuarioLoginSchema):
+    """Faz login com email e senha."""
+    try:
+        user = User.objects.get(email=data.email)
+    except User.DoesNotExist:
+        raise HttpError(401, 'Email ou senha incorretos')
+
+    if not user.check_password(data.password):      
+        raise HttpError(401, 'Email ou senha incorretos')
+
+    token = gerar_token(user)
+    return {
+        'access_token': token,
+        'token_type': 'Bearer',
+        'user': preparar_perfil_user(user),
+    }
+
+
+@router.post('/register', response=TokenSchema)
+def registrar(request, data: UsuarioRegistroSchema):
+    """Regista um novo utilizador."""
+    if User.objects.filter(email=data.email).exists():
+        raise HttpError(400, 'Este email já está registado')
+
+    if User.objects.filter(username=data.username).exists():
+        raise HttpError(400, 'Este nome de utilizador já existe')
+
+    try:
+        user = User.objects.create_user(
+            username=data.username,
+            email=data.email,
+            password=data.password,
+            first_name=data.first_name or '',
+            last_name=data.last_name or '',
+        )
+    except IntegrityError as exc:
+        raise HttpError(400, str(exc))
+
+    token = gerar_token(user)
+    return {
+        'access_token': token,
+        'token_type': 'Bearer',
+        'user': preparar_perfil_user(user),
+    }
+
+
+@router.get('/me', response=UsuarioPerfilSchema)
+def obter_perfil(request):
+    """Obtém o perfil do utilizador autenticado."""
+    if not request.user.is_authenticated:
+        return {'error': 'Utilizador não autenticado'}, 401
+
+    return preparar_perfil_user(request.user)
+
+
+@router.put('/me', response=UsuarioPerfilSchema)
+def atualizar_perfil(request, data: UsuarioAtualizacaoSchema):
+    """Atualiza o perfil do utilizador autenticado."""
+    if not request.user.is_authenticated:
+        raise HttpError(401, 'Utilizador não autenticado')
+
+    user = request.user
+    perfil = UserProfile.objects.get(user=user)
+
+    if data.first_name is not None:
+        user.first_name = data.first_name
+    if data.last_name is not None:
+        user.last_name = data.last_name
+    user.save()
+
+    if data.bio is not None:
+        perfil.bio = data.bio
+    if data.phone is not None:
+        perfil.phone = data.phone
+    if data.website is not None:
+        perfil.website = data.website
+    if data.timezone is not None:
+        perfil.timezone = data.timezone
+    if data.language is not None:
+        perfil.language = data.language
+    perfil.save()
+
+    return preparar_perfil_user(user)
+
+
+@router.get('/{user_id}', response=UsuarioPerfilSchema)
+def obter_perfil_usuario(request, user_id: int):
+    """Obtém o perfil de um utilizador específico."""
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        raise HttpError(404, 'Utilizador não encontrado')
+
+    return preparar_perfil_user(user)
+
+
+@router.post('/logout')
+def logout(request):
+    """Faz logout do utilizador autenticado."""
+    if not request.user.is_authenticated:
+        raise HttpError(401, 'Utilizador não autenticado')
+
+    auth.logout(request)
+    return {'message': 'Logout realizado com sucesso'}
 
 
 @router.get('/planos', response=list[PlanoSchema])

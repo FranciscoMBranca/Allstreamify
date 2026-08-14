@@ -1,5 +1,8 @@
 django==5.2
 django-ninja
 django-cors-headers
+djangorestframework
 dj-database-url
 pillow
+jwt
+pyjwt

@@ -13,7 +13,7 @@
 }
 
 * {
-  border: .5px solid red;
+  /* border: .5px solid red;  */
   box-sizing: border-box;
 }
 
@@ -610,7 +610,7 @@ select {
   background: rgba(255, 255, 255, 0.7);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 90px) {
   .app-estrutura {
     grid-template-columns: 1fr;
     grid-template-areas:

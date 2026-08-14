@@ -124,7 +124,6 @@ class Migration(migrations.Migration):
             name='UserProfile',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('clerk_user_id', models.CharField(blank=True, max_length=100, unique=True)),
                 ('bio', models.TextField(blank=True)),
                 ('avatar', models.ImageField(blank=True, null=True, upload_to='avatars/')),
                 ('phone', models.CharField(blank=True, max_length=20)),

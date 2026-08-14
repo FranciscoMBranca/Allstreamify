@@ -9,6 +9,55 @@ from ninja import ModelSchema, Schema
 from .models import Plan, Subscription, Team, UserProfile
 
 
+class UsuarioLoginSchema(Schema):
+    email: str
+    password: str
+
+
+class UsuarioRegistroSchema(Schema):
+    email: str
+    username: str
+    password: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+
+
+class UsuarioPerfilSchema(Schema):
+    id: int
+    username: str
+    email: str
+    first_name: str
+    last_name: str
+    bio: Optional[str] = None
+    avatar: Optional[str] = None
+    phone: Optional[str] = None
+    website: Optional[str] = None
+    timezone: str
+    language: str
+    email_verified: bool
+    two_factor_enabled: bool
+    onboarding_done: bool
+    created_at: datetime
+    updated_at: datetime
+
+
+class UsuarioAtualizacaoSchema(Schema):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    bio: Optional[str] = None
+    phone: Optional[str] = None
+    website: Optional[str] = None
+    timezone: Optional[str] = None
+    language: Optional[str] = None
+
+
+class TokenSchema(Schema):
+    access_token: str
+    refresh_token: Optional[str] = None
+    token_type: str = 'Bearer'
+    user: UsuarioPerfilSchema
+
+
 class PlanoSchema(ModelSchema):
     class Meta:
         model = Plan
@@ -39,7 +88,6 @@ class PerfilSchema(ModelSchema):
         fields = [
             'id',
             'user',
-            'clerk_user_id',
             'bio',
             'avatar',
             'phone',
@@ -62,7 +110,6 @@ class PerfilCriacaoSchema(Schema):
     email: str
     first_name: Optional[str] = ''
     last_name: Optional[str] = ''
-    clerk_user_id: Optional[str] = ''
     bio: Optional[str] = ''
     avatar: Optional[str] = ''
     phone: Optional[str] = ''

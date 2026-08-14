@@ -8,9 +8,11 @@ async function request(path, options = {}) {
     headers: {
       'Content-Type': 'application/json',
       ...(options.headers ?? {}),
+      
     },
     ...options,
   })
+  
 
   if (!response.ok) {
     let message = 'Erro ao consultar a API de live.'
@@ -36,6 +38,7 @@ export async function fetchLiveRooms() {
 export async function createLiveRoom(payload) {
   return request('/live/salas', {
     method: 'POST',
+   
     body: JSON.stringify(payload),
   })
 }

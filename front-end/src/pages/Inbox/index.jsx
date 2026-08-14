@@ -1,9 +1,20 @@
 // Página Inbox: mensagens, salas e chats
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './styles.css'
 
 function Inbox() {
   const [activeTab, setActiveTab] = useState('mensagens')
+  const [notifications, setNotifications] = useState([])
+
+  useEffect(() => {
+    const dadosNotificacoes = [
+      { title: 'Novo comentário', description: 'O vídeo de hoje recebeu 23 comentários.' },
+      { title: 'Meta atualizada', description: 'A meta de inscritos foi alcançada em 82%.' },
+      { title: 'Regras de IA ativas', description: 'Resposta automática ativada para mensagens.' },
+    ]
+
+    setNotifications(dadosNotificacoes)
+  }, [])
 
   const tabs = [
     { id: 'mensagens', label: 'Mensagens' },
@@ -28,12 +39,6 @@ function Inbox() {
     { user: 'Mateus', lastMessage: 'Preciso de atualizar os quadros de agenda.' },
     { user: 'Larissa', lastMessage: 'A live de amanhã foi confirmada.' },
     { user: 'André', lastMessage: 'Temos feedback sobre as notificações push.' },
-  ]
-
-  const notifications = [
-    { title: 'Novo comentário', description: 'O vídeo de hoje recebeu 23 comentários.' },
-    { title: 'Meta atualizada', description: 'A meta de inscritos foi alcançada em 82%.' },
-    { title: 'Regras de IA ativas', description: 'Resposta automática ativada para mensagens.' },
   ]
 
   return (
@@ -145,6 +150,6 @@ function Inbox() {
       </div>
     </section>
   )
-}
+};
 
-export default Inbox
+export default Inbox;

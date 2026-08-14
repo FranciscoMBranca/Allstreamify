@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-import json
 from typing import Any
-
+import datetime
 import ninja
-import orjson
+from .parser import ORJSONParser
 from django.db.models import Sum
-from django.http import HttpRequest
+import json
+
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from ninja.errors import HttpError
@@ -18,38 +18,6 @@ from social.models import SocialAccount
 from social.platforms import get_platform_payload_normalizer
 from scheduler.models import ScheduledPost
 from live.models import LiveRoom
-
-
-# Cada chamada do frontend passa por este parser. Ele converte o request em JSON e
-# torna a API mais rápida e previsível para os endpoints que devolvem dados em React.
-class ORJSONParser(Parser):
-    """Parser JSON com suporte a orjson para respostas rápidas e legíveis."""
-
-    media_type = "application/json"
-
-    def parse_body(self, request: HttpRequest) -> dict[str, Any]:
-        try:
-            body = request.body or b'{}'
-            if not body.strip():
-                return {}
-            payload = orjson.loads(body)
-            if isinstance(payload, dict):
-                return payload
-            return {'value': payload}
-        except (orjson.JSONDecodeError, TypeError, ValueError):
-            try:
-                return json.loads(request.body.decode('utf-8'))
-            except (TypeError, ValueError, UnicodeDecodeError):
-                return {}
-
-    def parse_querydict(self, data, list_fields, request):
-        result = {}
-        for key in data.keys():
-            if key in list_fields:
-                result[key] = data.getlist(key)
-            else:
-                result[key] = data.get(key)
-        return result
 
 
 # NinjaAPI é o centro do backend: aqui ficam os endpoints que o frontend consome.
@@ -138,7 +106,10 @@ def build_dashboard_payload() -> dict[str, Any]:
 @Api.get('/health')
 def health(request):
     """Endpoint simples para validar se a API está disponível."""
-    return {'status': 'ok', 'service': 'streamfy'}
+    
+
+    data_atual = datetime.datetime.now().isoformat()
+    return json.dumps({'status': 'ok', 'timestamp': data_atual}, ensure_ascii=False)
 
 
 @Api.get('/dashboard')

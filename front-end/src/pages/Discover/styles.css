@@ -177,6 +177,7 @@
 
 .discover-feed-card {
   background: linear-gradient(180deg, #ffffff, #fbfaff);
+  
 }
 
 .discover-section-header {
@@ -213,54 +214,8 @@
 .discover-feed-list {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 14px;
-}
-
-.discover-post-card {
-  padding: 16px;
-  border-radius: 20px;
-  background: white;
-  border: 1px solid #eceaf7;
-  box-shadow: 0 10px 24px rgba(20, 15, 34, 0.04);
-}
-
-.discover-post-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.discover-post-header h3 {
-  margin: 0 0 2px;
-  font-size: 0.96rem;
-}
-
-.discover-post-header p {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: 0.83rem;
-}
-
-.discover-post-badge {
-  margin-left: auto;
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: rgba(124, 77, 255, 0.12);
-  color: var(--accent);
-  font-size: 0.74rem;
-  font-weight: 700;
-}
-
-.discover-thumbnail {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 180px;
-  margin-bottom: 12px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, rgba(124, 77, 255, 0.16), rgba(15, 23, 42, 0.08));
-  font-size: 3.2rem;
 }
 
 .discover-avatar {

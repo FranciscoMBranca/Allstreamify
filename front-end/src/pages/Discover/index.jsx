@@ -1,14 +1,23 @@
 // Página Descobrir: feed central de lives com painel fixo de sala e usuário
 import './styles.css'
 import { useEffect, useState } from 'react'
+// Card de publicação reutilizável, com o visual de post estilo Facebook
+import post1 from '../../assets/Microsoft_Windows_10_Desktop_Wallpaper_medium.jpg'
+import PostCard from '../../components/PostCard'
 
 function Discover() {
-  const [rooms, setRooms] = useState([])
-  const [selectedRoomId, setSelectedRoomId] = useState(null)
-  const [scheduled, setScheduled] = useState([])
+  // Lista de salas disponíveis, carregada no useEffect abaixo
+  const [salas, definirSalas] = useState([])
+  // Id da sala atualmente exibida em destaque na barra lateral
+  const [idSalaSelecionada, definirIdSalaSelecionada] = useState(null)
+  // Lista de lives agendadas, mostradas como publicações no feed central
+  const [agendadas, definirAgendadas] = useState([])
 
+  // Efeito executado uma única vez, ao montar o componente,
+  // para simular o carregamento inicial de salas e lives agendadas.
   useEffect(() => {
-    const roomSeed = [
+    // Dados iniciais das salas (viriam de uma API no futuro)
+    const salasIniciais = [
       {
         id: 'r1',
         title: 'Sala de Música',
@@ -38,10 +47,14 @@ function Discover() {
       },
     ]
 
-    setRooms(roomSeed)
-    setSelectedRoomId(roomSeed.find((room) => room.joined)?.id || roomSeed[0]?.id || null)
+    // Guarda as salas no estado
+    definirSalas(salasIniciais)
+    // Seleciona por padrão a primeira sala da qual o usuário já participa;
+    // se nenhuma, cai para a primeira sala da lista; se a lista estiver vazia, null.
+    definirIdSalaSelecionada(salasIniciais.find((sala) => sala.joined)?.id || salasIniciais[0]?.id || null)
 
-    setScheduled([
+    // Dados iniciais das lives agendadas (viriam de uma API no futuro)
+    definirAgendadas([
       {
         id: 's1',
         roomId: 'r1',
@@ -51,7 +64,7 @@ function Discover() {
         description: 'Live com bastidores, pré-escuta e interação com o público em tempo real.',
         reactions: '1,2k',
         comments: '248',
-        thumbnail: '🎧',
+        thumbnail: `${post1}`,
       },
       {
         id: 's2',
@@ -78,14 +91,20 @@ function Discover() {
     ])
   }, [])
 
-  function alternarParticipacao(roomId) {
-    setRooms((itens) => itens.map((room) => (room.id === roomId ? { ...room, joined: !room.joined } : room)))
+  // Alterna se o usuário participa (joined) ou não de uma sala específica.
+  function alternarParticipacao(idSala) {
+    definirSalas((salasAtuais) =>
+      salasAtuais.map((sala) => (sala.id === idSala ? { ...sala, joined: !sala.joined } : sala)),
+    )
   }
 
-  const salaSelecionada = rooms.find((room) => room.id === selectedRoomId) || rooms[0] || null
+  // Sala atualmente em destaque na barra lateral: a selecionada,
+  // ou a primeira da lista, ou null se não houver nenhuma sala.
+  const salaSelecionada = salas.find((sala) => sala.id === idSalaSelecionada) || salas[0] || null
 
   return (
     <section className="discover-shell">
+      {/* Cabeçalho da página, com título e subtítulo explicativo */}
       <header className="discover-header">
         <div>
           <p className="discover-eyebrow">Descobrir</p>
@@ -97,7 +116,9 @@ function Discover() {
       </header>
 
       <div className="discover-layout">
+        {/* Barra lateral fixa: perfil do usuário e detalhes da sala selecionada */}
         <aside className="discover-sidebar">
+          {/* Cartão de perfil do usuário logado */}
           <section className="discover-section discover-profile-card">
             <div className="discover-profile-top">
               <div className="discover-avatar discover-avatar-strong">F</div>
@@ -114,7 +135,9 @@ function Discover() {
             </div>
           </section>
 
+          {/* Cartão com o destaque da sala selecionada e a lista completa de salas */}
           <section className="discover-section discover-room-card">
+            {/* Mostra o destaque apenas quando existe uma sala selecionada */}
             {salaSelecionada ? (
               <div className="discover-room-highlight">
                 <div className="discover-room-title-row">
@@ -130,32 +153,38 @@ function Discover() {
                 <p className="discover-card-description">{salaSelecionada.description}</p>
 
                 <div className="discover-card-actions">
-                  <button type="button" className="discover-action-btn" onClick={() => alternarParticipacao(salaSelecionada.id)}>
+                  <button
+                    type="button"
+                    className="discover-action-btn"
+                    onClick={() => alternarParticipacao(salaSelecionada.id)}
+                  >
                     {salaSelecionada.joined ? 'Entrar' : 'Aderir'}
                   </button>
                 </div>
               </div>
             ) : null}
 
+            {/* Lista de todas as salas, permitindo trocar a sala em destaque */}
             <div className="discover-room-list">
-              {rooms.map((room) => (
+              {salas.map((sala) => (
                 <button
-                  key={room.id}
+                  key={sala.id}
                   type="button"
-                  className={`discover-room-item ${selectedRoomId === room.id ? 'active' : ''}`}
-                  onClick={() => setSelectedRoomId(room.id)}
+                  className={`discover-room-item ${idSalaSelecionada === sala.id ? 'active' : ''}`}
+                  onClick={() => definirIdSalaSelecionada(sala.id)}
                 >
                   <div className="discover-room-item-title">
-                    <strong>{room.title}</strong>
-                    <span>{room.status}</span>
+                    <strong>{sala.title}</strong>
+                    <span>{sala.status}</span>
                   </div>
-                  <p>{room.members} membros</p>
+                  <p>{sala.members} membros</p>
                 </button>
               ))}
             </div>
           </section>
         </aside>
 
+        {/* Feed central com as publicações (lives agendadas) */}
         <main className="discover-feed">
           <section className="discover-section discover-feed-card">
             <div className="discover-section-header">
@@ -163,51 +192,23 @@ function Discover() {
                 <h2>Lives agendadas</h2>
                 <p>Conteúdo em destaque para sua comunidade.</p>
               </div>
-              <span className="discover-pill">{scheduled.length}</span>
+              {/* Contador com o total de publicações no feed */}
+              <span className="discover-pill">{agendadas.length}</span>
             </div>
 
+            {/* Lista de publicações, cada uma renderizada pelo componente PostCard */}
             <div className="discover-feed-list">
-              {scheduled.map((item) => {
-                const roomInfo = rooms.find((room) => room.id === item.roomId)
-                const canJoin = roomInfo ? !roomInfo.joined : false
+              {agendadas.map((publicacao) => {
+                // Sala associada a esta publicação, usada para mostrar membros e status
+                const salaDaPublicacao = salas.find((sala) => sala.id === publicacao.roomId)
 
                 return (
-                  <article key={item.id} className="discover-post-card">
-                    <div className="discover-post-header">
-                      <div className="discover-avatar discover-avatar-strong">{item.host.charAt(0)}</div>
-                      <div>
-                        <h3>{item.title}</h3>
-                        <p>{item.host} · {item.when}</p>
-                      </div>
-                      <span className="discover-post-badge">{roomInfo?.joined ? 'Participando' : 'Aberta'}</span>
-                    </div>
-
-                    <div className="discover-thumbnail" aria-hidden="true">
-                      <span>{item.thumbnail}</span>
-                    </div>
-
-                    <p className="discover-card-description">{item.description}</p>
-
-                    <div className="discover-card-stats">
-                      <span>❤️ {item.reactions}</span>
-                      <span>💬 {item.comments}</span>
-                      <span>🔔 {roomInfo?.members || 0} interessados</span>
-                    </div>
-
-                    <div className="discover-card-actions">
-                      <button
-                        type="button"
-                        className={`discover-action-btn ${canJoin ? '' : 'discover-action-btn-secondary'}`}
-                        onClick={() => {
-                          if (roomInfo) {
-                            alternarParticipacao(roomInfo.id)
-                          }
-                        }}
-                      >
-                        {canJoin ? 'Aderir à sala' : 'Entrar na live'}
-                      </button>
-                    </div>
-                  </article>
+                  <PostCard
+                    key={publicacao.id}
+                    publicacao={publicacao}
+                    sala={salaDaPublicacao}
+                    aoAlternarParticipacao={alternarParticipacao}
+                  />
                 )
               })}
             </div>

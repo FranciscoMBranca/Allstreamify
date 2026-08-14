@@ -114,3 +114,5 @@ front-end/dist/
 migrations/
 migrations/*
 migrations
+*.md
+*.txt

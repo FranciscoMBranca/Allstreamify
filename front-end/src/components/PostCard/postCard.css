@@ -1,0 +1,141 @@
+/* Card do post: fundo branco, cantos arredondados e sombra suave,
+   igual à "caixa" usada pelo Facebook para cada publicação do feed. */
+.post-card {
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid #e4e6eb;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+/* Cabeçalho do post: avatar à esquerda, nome/data no centro, emblema à direita */
+.post-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Avatar circular com a inicial do autor da publicação */
+.post-card-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  font-weight: 700;
+}
+
+/* Bloco com o nome do autor e a data, empilhados verticalmente */
+.post-card-autor {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+/* Nome do autor em destaque, como no cabeçalho de um post do Facebook */
+.post-card-nome {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #050505;
+}
+
+/* Data/hora da publicação, em tom mais claro que o nome */
+.post-card-data {
+  font-size: 0.78rem;
+  color: #65676b;
+}
+
+/* Emblema de status (ex.: "Participando" / "Aberta"), alinhado à direita */
+.post-card-emblema {
+  margin-left: auto;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(124, 77, 255, 0.12);
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Título da publicação, logo abaixo do cabeçalho */
+.post-card-titulo {
+  margin: 0;
+  font-size: 0.98rem;
+  color: #050505;
+}
+
+/* Texto descritivo do post, no mesmo tom de cinza usado pelo Facebook */
+.post-card-texto {
+  margin: 0;
+  color: #050505;
+  line-height: 1.4;
+  font-size: 0.92rem;
+}
+
+/* Área de mídia (emoji grande simulando imagem/vídeo do post) */
+.post-card-midia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 180px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(124, 77, 255, 0.16), rgba(15, 23, 42, 0.08));
+  font-size: 3.2rem;
+}
+
+/* Linha com os números de reações, comentários e interessados */
+.post-card-estatisticas {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content:space-around;
+  padding-top: 4px;
+  color: #65676b;
+  font-size: 0.82rem;
+}
+
+/* Linha fina que separa as estatísticas do botão de ação,
+   reproduzindo o divisor que o Facebook usa entre "curtidas" e "ações" */
+.post-card-divisor {
+  height: 1px;
+  background: #e4e6eb;
+}
+
+/* Botão de ação principal, ocupando toda a largura do card */
+.post-card-botao-acao {
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: var(--accent);
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+/* Variante do botão quando o utilizador já participa da sala:
+   fica mais discreto, com fundo suave em vez de cor sólida */
+.post-card-botao-acao-secundario {
+  background: rgba(124, 77, 255, 0.12);
+  color: var(--accent);
+}
+
+#post-thumbnail {
+  width: 100%;
+  height: 100%;
+  /* height: auto; */
+  /* border-radius: 10px; */
+  text-align: center;
+}

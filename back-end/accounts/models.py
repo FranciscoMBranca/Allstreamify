@@ -6,7 +6,6 @@ from django.dispatch import receiver
 
 class Plan(models.Model):
     """Plano de assinatura disponível no sistema."""
-
     name = models.CharField(max_length=50)
     slug = models.SlugField(unique=True)
     stripe_price_id = models.CharField(max_length=100, blank=True)
@@ -33,17 +32,16 @@ class Plan(models.Model):
 
 
 class UserProfile(models.Model):
-    """Perfil do usuário com dados de negócio e associação ao Clerk."""
+    """Perfil do usuário com dados de negócio."""
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    clerk_user_id = models.CharField(max_length=100, unique=True, blank=True)
     bio = models.TextField(blank=True)
-    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    avatar = models.ImageField(upload_to='foto_perfil/', blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True)
     website = models.URLField(blank=True)
     timezone = models.CharField(max_length=50, default='Africa/Luanda')
     language = models.CharField(max_length=10, default='pt-br')
-    plan = models.ForeignKey(Plan, on_delete=models.SET_NULL, null=True, blank=True, related_name='subscribers')
+    plan = models.ForeignKey(Plan, on_delete=models.SET_NULL, null=True, blank=True, related_name='subscritores')
     plan_expires_at = models.DateTimeField(null=True, blank=True)
     stripe_customer_id = models.CharField(max_length=100, blank=True)
     email_verified = models.BooleanField(default=False)
@@ -145,8 +143,8 @@ class Notification(models.Model):
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self) -> str:
-        return f'Notification for {self.user.username}: {self.title}'
+    def __str__(self) -> dict:
+        return {self.user.usern:self.title for _ in self.title}
 
 
 class AuditLog(models.Model):
