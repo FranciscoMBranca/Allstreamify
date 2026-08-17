@@ -196,7 +196,7 @@ def create_plano(request, payload: PlanoCriacaoSchema):
     return Plan.objects.create(**payload.dict())
 
 
-@router.get('/perfis', response=list[PerfilSchema], auth=JWTadm())
+@router.get('/perfis', response=list[PerfilSchema], auth=JWTAuth)
 def list_perfis(request):
     """Retorna todos os perfis de usuário."""
     if request.user.is_superuser():
