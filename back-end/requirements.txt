@@ -3,7 +3,7 @@ django-ninja
 django-cors-headers
 djangorestframework
 dj-database-url
-ninja_jwt
+django-ninja-jwt
 pillow
 jwt
 pyjwt
