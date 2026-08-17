@@ -1,6 +1,7 @@
 from __future__ import annotations
+from ninja_jwt.authentication import JWTAuth
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 import jwt
@@ -11,6 +12,7 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from ninja.errors import HttpError
+from ninja_jwt.tokens import RefreshToken
 
 from .models import Plan, Subscription, Team, UserProfile
 from .schemas import (
@@ -32,14 +34,15 @@ from .schemas import (
 router = ninja.Router(tags=['accounts'])
 
 
+
 def gerar_token(user):
     """Gera um JWT para o usuário autenticado."""
     payload = {
         'user_id': user.id,
         'username': user.username,
         'email': user.email,
-        'exp': datetime.utcnow() + timedelta(days=30),
-        'iat': datetime.utcnow(),
+        'exp': datetime.now(timezone.utc) + timedelta(days=30),
+        'iat': datetime.now(timezone.utc),
     }
     return jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
 
@@ -98,14 +101,15 @@ def registrar(request, data: UsuarioRegistroSchema):
 
     if User.objects.filter(username=data.username).exists():
         raise HttpError(400, 'Este nome de utilizador já existe')
+    data['userrname']
 
     try:
         user = User.objects.create_user(
-            username=data.username,
+            username=data.username ,
+            first_name=data.first_name ,
             email=data.email,
             password=data.password,
-            first_name=data.first_name or '',
-            last_name=data.last_name or '',
+            last_name=data.last_name ,
         )
     except IntegrityError as exc:
         raise HttpError(400, str(exc))
@@ -184,19 +188,21 @@ def list_planos(request):
     return Plan.objects.filter(is_active=True).order_by('price_monthly')
 
 
-@router.post('/planos', response=PlanoSchema)
+@router.post('/planos', response=PlanoSchema, auth=JWTAuth)
 def create_plano(request, payload: PlanoCriacaoSchema):
     """Cria um novo plano de assinatura."""
     return Plan.objects.create(**payload.dict())
 
 
-@router.get('/perfis', response=list[PerfilSchema])
+@router.get('/perfis', response=list[PerfilSchema], auth=JWTadm())
 def list_perfis(request):
     """Retorna todos os perfis de usuário."""
-    return UserProfile.objects.select_related('user', 'plan').all()
+    if request.user.is_superuser():
+        return UserProfile.objects.select_related('user', 'plan').all()
+    return HttpError(401, "Usuário não autorizado!")
 
 
-@router.post('/perfis', response=PerfilSchema)
+@router.post('/perfis', response=PerfilSchema, auth=JWTAuth())
 def create_perfil(request, payload: PerfilCriacaoSchema):
     """Cria um perfil de usuário e conta Django associada."""
     usuario = User.objects.create(
@@ -205,12 +211,12 @@ def create_perfil(request, payload: PerfilCriacaoSchema):
         first_name=payload.first_name or '',
         last_name=payload.last_name or '',
     )
+    
     dados_perfil = payload.dict(exclude={'username', 'email', 'first_name', 'last_name', 'plan_id'})
     if payload.plan_id:
         dados_perfil['plan'] = get_object_or_404(Plan, id=payload.plan_id)
     perfil = UserProfile.objects.create(user=usuario, **dados_perfil)
     return perfil
-
 
 @router.get('/equipes', response=list[EquipeSchema])
 def list_equipes(request):
@@ -218,7 +224,7 @@ def list_equipes(request):
     return Team.objects.select_related('owner', 'plan').all()
 
 
-@router.post('/equipes', response=EquipeSchema)
+@router.post('/equipes', response=EquipeSchema, auth=JWTAuth())
 def create_equipe(request, payload: EquipeCriacaoSchema):
     """Cria uma nova equipe de trabalho."""
     owner = get_object_or_404(User, id=payload.owner_id)

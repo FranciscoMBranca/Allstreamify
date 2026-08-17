@@ -10,7 +10,8 @@ import json
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from ninja.errors import HttpError
-from ninja.parser import Parser
+from ninja_jwt.authentication import JWTAuth
+
 
 from django.contrib.auth.models import User
 
@@ -112,12 +113,15 @@ def health(request):
     return json.dumps({'status': 'ok', 'timestamp': data_atual}, ensure_ascii=False)
 
 
-@Api.get('/dashboard')
+@Api.get('/dashboard/preview', auth=JWTAuth())
 def dashboard(request):
     """Retorna os dados do painel principal com base nos modelos reais."""
-    return build_dashboard_payload()
+    try:
+        return build_dashboard_payload()
+    except:
+        return HttpError(401, "fuck you")
 
-
+ 
 @Api.get('/platforms')
 def platforms(request):
     """Lista as plataformas disponíveis para conexão."""

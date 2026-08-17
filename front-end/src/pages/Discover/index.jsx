@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import post1 from '../../assets/Microsoft_Windows_10_Desktop_Wallpaper_medium.jpg'
 import PostCard from '../../components/PostCard'
 
+
 function Discover() {
   // Lista de salas disponíveis, carregada no useEffect abaixo
   const [salas, definirSalas] = useState([])

@@ -28,7 +28,7 @@ class Plan(models.Model):
         verbose_name_plural = 'planos'
 
     def __str__(self) -> str:
-        return f'{self.name} (R${self.price_monthly}/mês)'
+        return f'{self.name} ({self.price_monthly}KZs/mês)'
 
 
 class UserProfile(models.Model):
