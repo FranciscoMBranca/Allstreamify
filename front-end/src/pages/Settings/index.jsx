@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState} from 'react'
 import { usePerfilAtual, useUpdatePerfilAtual } from '../../hooks/useUtilizadores'
 import './styles.css'
 
@@ -9,30 +9,16 @@ const Perfil = () => {
   // Estados para edição
   const [editando, setEditando] = useState(false)
   const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
-    bio: '',
-    phone: '',
-    website: '',
-    timezone: '',
-    language: '',
+        first_name: usuario?.first_name || '',
+        last_name: usuario?.last_name || '',
+        bio: usuario?.bio || '',
+        phone: usuario?.phone || '',
+        website: usuario?.website || '',
+        timezone: usuario?.timezone || '',
+        language: usuario?.language || '',
   })
 
-  // Preencher formulário com dados do usuário
-  useEffect(() => {
-    if (usuario) {
-      setFormData({
-        first_name: usuario.first_name || '',
-        last_name: usuario.last_name || '',
-        bio: usuario.bio || '',
-        phone: usuario.phone || '',
-        website: usuario.website || '',
-        timezone: usuario.timezone || '',
-        language: usuario.language || '',
-      })
-    }
-  }, [usuario])
-
+  
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData(prev => ({
