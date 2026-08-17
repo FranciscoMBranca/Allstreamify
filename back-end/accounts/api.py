@@ -101,7 +101,9 @@ def registrar(request, data: UsuarioRegistroSchema):
 
     if User.objects.filter(username=data.username).exists():
         raise HttpError(400, 'Este nome de utilizador já existe')
-    data['userrname']
+    
+    if data["username"] is None or data["username"].strip() == "":
+        data["username"] = data["email"].split("@")[0]
 
     try:
         user = User.objects.create_user(
