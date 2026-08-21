@@ -10,13 +10,13 @@ from .models import Plan, Subscription, Team, UserProfile
 
 
 class UsuarioLoginSchema(Schema):
-    email: str
+    email: str 
     password: str
 
 
 class UsuarioRegistroSchema(Schema):
     email: str
-    username: str
+    # username: str=''
     password: str
     first_name: Optional[str] = None
     last_name: Optional[str] = None

@@ -1,14 +1,13 @@
 // Página Home: visão geral do painel com métricas e salas de live
 import { useEffect, useState } from 'react'
 import './styles.css'
-import { dashboardData } from '../../data/dashboardData.js'
 import LiveStudio from '../../components/LiveStudio'
 import { fetchLiveRooms, createLiveRoom } from '../../lib/liveApi.js'
 import { buildLiveRoomPayload, normalizeLiveRoom } from '../../lib/liveUtils.js'
 import '../pages.css'
 function Home({ dashboard, loading }) {
   // Usa dados do backend quando disponíveis, senão usa dados de mock
-  const data = dashboard ?? dashboardData
+  const data = dashboard 
   const [liveRooms, setLiveRooms] = useState([])
   const [roomError, setRoomError] = useState('')
   const [creatingRoom, setCreatingRoom] = useState(false)

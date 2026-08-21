@@ -7,7 +7,6 @@ class AuthEndpointsTests(TestCase):
     def test_register_and_login_user(self):
         payload = {
             "email": "maria@example.com",
-            "username": "maria",
             "password": "senha123",
             "first_name": "Maria",
             "last_name": "Silva",

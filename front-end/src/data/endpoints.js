@@ -2,7 +2,6 @@
 // Este arquivo é a base para todas as chamadas à API
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api'
-const CLODINARY_BASE_URL=import.meta.VITE_API_BASE_URL
 
 export const endpoints = {
   // ============================================================
@@ -14,6 +13,10 @@ export const endpoints = {
     logout: () => `${API_BASE}/accounts/logout`,
     me: () => `${API_BASE}/accounts/me`,
     perfil: (userId) => `${API_BASE}/accounts/${userId}`,
+  },
+
+  dashboard: {
+    obter: () => `${API_BASE}/dashboard`,
   },
 
   // ============================================================
@@ -56,6 +59,7 @@ export const endpoints = {
   // REAÇÕES
   // ============================================================
   reacoes: {
+    
     obter: (publicacaoId) => `${API_BASE}/publicacoes/${publicacaoId}/reacoes`,
     adicionar: (publicacaoId) => `${API_BASE}/publicacoes/${publicacaoId}/reacoes`,
     remover: (publicacaoId, reacaoId) => `${API_BASE}/publicacoes/${publicacaoId}/reacoes/${reacaoId}`,

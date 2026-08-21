@@ -13,12 +13,14 @@ from ninja.errors import HttpError
 from ninja_jwt.authentication import JWTAuth
 
 
+
 from django.contrib.auth.models import User
 
 from social.models import SocialAccount
 from social.platforms import get_platform_payload_normalizer
 from scheduler.models import ScheduledPost
 from live.models import LiveRoom
+from ninja_jwt.controller import NinjaJWTDefaultController
 
 
 # NinjaAPI é o centro do backend: aqui ficam os endpoints que o frontend consome.
@@ -29,6 +31,7 @@ Api = ninja.NinjaAPI(
     version="0.1.0",
     description="API do painel Streamify para gestão de plataformas sociais e transmissão.",
 )
+
 
 
 PLATFORMS = [
@@ -113,13 +116,13 @@ def health(request):
     return json.dumps({'status': 'ok', 'timestamp': data_atual}, ensure_ascii=False)
 
 
-@Api.get('/dashboard/preview', auth=JWTAuth())
+@Api.get('/dashboard/')
 def dashboard(request):
     """Retorna os dados do painel principal com base nos modelos reais."""
     try:
         return build_dashboard_payload()
     except:
-        return HttpError(401, "fuck you")
+        raise HttpError(401, "fuck you")
 
  
 @Api.get('/platforms')
@@ -131,14 +134,16 @@ def platforms(request):
 @Api.get('/platforms/connect')
 def connect_platform_get(request):
     """Informa ao frontend que a conexão exige um POST com payload válido."""
-    return {'success': False, 'message': 'Use POST para conectar uma plataforma. Envie userId, platformId, username e platformUserId.'}
+    # return {'success': False, 'message': 'Use POST para conectar uma plataforma. Envie userId, platformId, username e platformUserId.'} 
+    raise HttpError(404, 'Endpoint não encontrado.')
 
 
-@Api.post('/platforms/connect')
+@Api.post('/platforms/connect', auth=JWTAuth())
 def connect_platform(request):
     """Cria a conexão de uma conta social real no sistema."""
     payload = {}
-
+    if not User.is_authenticated:
+        raise HttpError(401, "Usuário não autenticado.")
     if request.body:
         try:
             raw_body = request.body.decode('utf-8') if isinstance(request.body, bytes) else request.body

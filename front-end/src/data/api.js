@@ -2,12 +2,13 @@
 // Este ficheiro oferece uma interface unificada para todas as operações
 
 import { endpoints } from './endpoints'
-
+ const AuthToken = localStorage.getItem('authToken') || null
 // Função auxiliar para fazer requisições
 async function request(url, options = {}) {
   const response = await fetch(url, {
     headers: {
       'Content-Type': 'application/json',
+      ...(AuthToken ? { Authorization: `Bearer ${AuthToken}` } : {}),
       ...(options.headers ?? {}),
     },
     ...options,

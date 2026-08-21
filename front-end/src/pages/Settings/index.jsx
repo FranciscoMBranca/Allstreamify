@@ -1,21 +1,20 @@
-import { useState} from 'react'
-import { usePerfilAtual, useUpdatePerfilAtual } from '../../hooks/useUtilizadores'
+import { useState } from 'react'
+import { mockPerfisUsuario } from '../../data/mockData'
 import './styles.css'
 
 const Perfil = () => {
-  const { data: usuario, isLoading, error } = usePerfilAtual()
-  const { mutate: atualizarPerfil, isPending } = useUpdatePerfilAtual()
-  
-  // Estados para edição
+  const [usuario, setUsuario] = useState(mockPerfisUsuario[0])
   const [editando, setEditando] = useState(false)
+  const [salvando, setSalvando] = useState(false)
+  
   const [formData, setFormData] = useState({
-        first_name: usuario?.first_name || '',
-        last_name: usuario?.last_name || '',
-        bio: usuario?.bio || '',
-        phone: usuario?.phone || '',
-        website: usuario?.website || '',
-        timezone: usuario?.timezone || '',
-        language: usuario?.language || '',
+      first_name: usuario?.first_name || '',
+      last_name: usuario?.last_name || '',
+      bio: usuario?.bio || '',
+      phone: usuario?.phone || '',
+      website: usuario?.website || '',
+      timezone: usuario?.timezone || '',
+      language: usuario?.language || '',
   })
 
   
@@ -29,39 +28,10 @@ const Perfil = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    atualizarPerfil(formData, {
-      onSuccess: () => {
-        setEditando(false)
-        alert('Perfil atualizado com sucesso!')
-      },
-      onError: (error) => {
-        alert('Erro ao atualizar perfil: ' + error.message)
-      }
-    })
-  }
-
-  if (isLoading) {
-    return (
-      <div className="perfil-container">
-        <div className="loading">Carregando perfil...</div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="perfil-container">
-        <div className="error">Erro ao carregar perfil: {error.message}</div>
-      </div>
-    )
-  }
-
-  if (!usuario) {
-    return (
-      <div className="perfil-container">
-        <div className="error">Nenhum perfil disponível. Por favor, faça login.</div>
-      </div>
-    )
+    setSalvando(true)
+    setUsuario((perfilAtual) => ({ ...perfilAtual, ...formData }))
+    setEditando(false)
+    setSalvando(false)
   }
 
   return (
@@ -222,13 +192,13 @@ const Perfil = () => {
 
           <div className="form-actions">
             <button type="submit" className="btn btn-primary" disabled={isPending}>
-              {isPending ? 'Salvando...' : 'Salvar Alterações'}
+              {salvando ? 'Salvando...' : 'Salvar Alterações'}
             </button>
             <button 
               type="button" 
               className="btn btn-secondary"
               onClick={() => setEditando(false)}
-              disabled={isPending}
+              disabled={salvando}
             >
               Cancelar
             </button>
@@ -291,3 +261,4 @@ const Perfil = () => {
 }
 
 export default Perfil
+

@@ -15,10 +15,11 @@ import AI from './pages/AI'
 import logoImg from './assets/logo.svg'
 import streamImg from './assets/stream.svg'
 import graceImg from './assets/grace.jpg'
+import { obterDashboard } from './lib/dashboardApi.js'
 import NotificationPanel from './components/NotificationPanel'
 // import LoginSignupForm from './pages/LoginSigin'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api'
+// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api'
 
 // Menu lateral do produto. Cada item mapeia para uma rota de página e um endpoint do backend.
 const navigationItems = [
@@ -206,7 +207,7 @@ function App() {
   useEffect(() => {
     async function carregarDashboard() {
       try {
-        const resposta = await fetch(`${API_BASE_URL}/dashboard`)
+        const resposta = await obterDashboard()
         if (!resposta.ok) {
           console.error('Erro ao carregar dashboard:', resposta.statusText)
           throw new Error('Não foi possível carregar o painel');

@@ -1,12 +1,8 @@
 from __future__ import annotations
-from ninja_jwt.authentication import JWTAuth
+from ninja_jwt.authentication import JWTAuth, JWTTokenUserAuth
+from ninja_jwt.tokens import RefreshToken
 
-from datetime import datetime, timedelta, timezone
-from typing import Optional
-
-import jwt
 import ninja
-from django.conf import settings
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.db import IntegrityError
@@ -32,19 +28,6 @@ from .schemas import (
 )
 
 router = ninja.Router(tags=['accounts'])
-
-
-
-def gerar_token(user):
-    """Gera um JWT para o usuário autenticado."""
-    payload = {
-        'user_id': user.id,
-        'username': user.username,
-        'email': user.email,
-        'exp': datetime.now(timezone.utc) + timedelta(days=30),
-        'iat': datetime.now(timezone.utc),
-    }
-    return jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
 
 
 def preparar_perfil_user(user):
@@ -73,21 +56,24 @@ def preparar_perfil_user(user):
         'updated_at': perfil.updated_at,
     }
 
-
 @router.post('/login', response=TokenSchema)
 def logar(request, data: UsuarioLoginSchema):
     """Faz login com email e senha."""
+    if not data.email or not data.password:
+        raise HttpError(400, 'Email e senha são obrigatórios')
+    
     try:
-        user = User.objects.get(email=data.email)
-    except User.DoesNotExist:
+        user=auth.authenticate(request, username=data.email, password=data.password)
+        
+        
+    except User is None:
         raise HttpError(401, 'Email ou senha incorretos')
 
-    if not user.check_password(data.password):      
-        raise HttpError(401, 'Email ou senha incorretos')
-
-    token = gerar_token(user)
+    
+    token = RefreshToken.for_user(user)
     return {
-        'access_token': token,
+        'access_token': str(token.access_token),
+        'refresh_token': str(token),
         'token_type': 'Bearer',
         'user': preparar_perfil_user(user),
     }
@@ -96,18 +82,20 @@ def logar(request, data: UsuarioLoginSchema):
 @router.post('/register', response=TokenSchema)
 def registrar(request, data: UsuarioRegistroSchema):
     """Regista um novo utilizador."""
-    if User.objects.filter(email=data.email).exists():
-        raise HttpError(400, 'Este email já está registado')
 
-    if User.objects.filter(username=data.username).exists():
-        raise HttpError(400, 'Este nome de utilizador já existe')
+    dados=dict(data)
     
-    if data["username"] is None or data["username"].strip() == "":
-        data["username"] = data["email"].split("@")[0]
+    if User.objects.filter(email=dados['email']).exists():
+         raise HttpError(400, 'Este email já está registado')
 
+    dados['username'] = dados['email'].split("@")[0]
+    if User.objects.filter(username=dados['username']).exists():
+         raise HttpError(400, 'Este nome de utilizador já existe')
+    
+    
     try:
         user = User.objects.create_user(
-            username=data.username ,
+            username=dados['username'] ,
             first_name=data.first_name ,
             email=data.email,
             password=data.password,
@@ -115,10 +103,11 @@ def registrar(request, data: UsuarioRegistroSchema):
         )
     except IntegrityError as exc:
         raise HttpError(400, str(exc))
-
-    token = gerar_token(user)
+    
+    token = RefreshToken.for_user(user)
     return {
-        'access_token': token,
+        'access_token': token.access_token(),
+        'refresh_token': token.refresh_token(),
         'token_type': 'Bearer',
         'user': preparar_perfil_user(user),
     }
@@ -128,7 +117,7 @@ def registrar(request, data: UsuarioRegistroSchema):
 def obter_perfil(request):
     """Obtém o perfil do utilizador autenticado."""
     if not request.user.is_authenticated:
-        return {'error': 'Utilizador não autenticado'}, 401
+        raise HttpError(401, 'Utilizador não autenticado')
 
     return preparar_perfil_user(request.user)
 
@@ -174,13 +163,13 @@ def obter_perfil_usuario(request, user_id: int):
     return preparar_perfil_user(user)
 
 
-@router.post('/logout')
+@router.post('/logout', auth=JWTAuth())
 def logout(request):
     """Faz logout do utilizador autenticado."""
     if not request.user.is_authenticated:
         raise HttpError(401, 'Utilizador não autenticado')
 
-    auth.logout(request)
+    auth.logout(request.user)
     return {'message': 'Logout realizado com sucesso'}
 
 
